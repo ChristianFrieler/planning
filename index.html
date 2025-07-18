@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ticket Manager</title>
+  <title>🎸 Indie-Punk Event Manager</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Bebas+Neue&display=swap" rel="stylesheet">
 </head>
 <body>
   <header>
-    <h1>Eventmanager</h1>
+    <h1>🎤 Indie-Punk Gigs</h1>
   </header>
 
   <main>
     <section id="event-form-section">
-      <h2>Neues Event anlegen</h2>
+      <h2>Neues Event erstellen</h2>
       <form id="event-form">
         <input type="text" id="event-title" placeholder="Eventtitel" required />
         <input type="text" id="event-location" placeholder="Ort" required />
@@ -49,96 +49,46 @@
     <p>🎸 Powered by DIY Spirit • Indie Vibes only</p>
   </footer>
 
-  <style>
-    body {
-      margin: 0;
-      background: url('https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2?auto=format&fit=crop&w=1280&q=80') no-repeat center center fixed;
-      background-size: cover;
-      font-family: 'Special Elite', monospace;
-      color: #fff;
-      backdrop-filter: blur(4px);
-    }
-
-    header {
-      background-color: rgba(0, 0, 0, 0.8);
-      padding: 2rem;
-      text-align: center;
-      font-family: 'Bebas Neue', cursive;
-      font-size: 2.5rem;
-      letter-spacing: 2px;
-    }
-
-    main {
-      padding: 1rem;
-      max-width: 800px;
-      margin: auto;
-    }
-
-    section {
-      margin-bottom: 2rem;
-      background-color: rgba(0, 0, 0, 0.7);
-      padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-    }
-
-    input, button {
-      width: 100%;
-      margin: 0.5rem 0;
-      padding: 0.75rem;
-      border: none;
-      border-radius: 5px;
-      font-family: 'Special Elite', monospace;
-    }
-
-    input {
-      background-color: #222;
-      color: #fff;
-    }
-
-    button {
-      background-color: #e91e63;
-      color: white;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .event-card {
-      border-left: 5px solid #e91e63;
-      margin-bottom: 1rem;
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 6px;
-    }
-
-    .participants {
-      margin-top: 1rem;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    footer {
-      text-align: center;
-      padding: 2rem;
-      font-size: 0.9rem;
-      background-color: rgba(0, 0, 0, 0.6);
-    }
-  </style>
-
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script>
+    const firebaseConfig = {
+      apiKey: "DEIN_API_KEY",
+      authDomain: "DEIN_AUTH_DOMAIN",
+      projectId: "DEIN_PROJECT_ID",
+      storageBucket: "DEIN_STORAGE_BUCKET",
+      messagingSenderId: "DEIN_MSG_ID",
+      appId: "DEINE_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
     const form = document.getElementById('event-form');
     const eventList = document.getElementById('event-list');
     const template = document.getElementById('event-template');
 
-    let events = JSON.parse(localStorage.getItem('events')) || [];
+    let events = [];
 
-    const saveEvents = () => localStorage.setItem('events', JSON.stringify(events));
+    const fetchEvents = async () => {
+      const snapshot = await db.collection("events").get();
+      events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderEvents();
+    };
+
+    const saveEvent = async (event) => {
+      await db.collection("events").add(event);
+      fetchEvents();
+    };
+
+    const updateEventParticipants = async (id, updatedParticipants) => {
+      await db.collection("events").doc(id).update({ participants: updatedParticipants });
+      fetchEvents();
+    };
 
     const renderEvents = () => {
       eventList.innerHTML = '';
-      events.forEach((event, index) => {
+      events.forEach(event => {
         const clone = template.content.cloneNode(true);
         clone.querySelector('.event-title').textContent = event.title;
         clone.querySelector('.event-meta').textContent = `${event.date} @ ${event.location}`;
@@ -159,16 +109,14 @@
             li.textContent = name;
             listEl.appendChild(li);
           });
-        }
+        };
 
         addBtn.onclick = () => {
           const name = inputEl.value.trim();
           if (!name || event.participants.length >= event.tickets) return;
-          event.participants.push(name);
-          inputEl.value = '';
-          saveEvents();
-          renderEvents();
-        }
+          const updated = [...event.participants, name];
+          updateEventParticipants(event.id, updated);
+        };
 
         renderParticipants();
         eventList.appendChild(clone);
@@ -184,13 +132,31 @@
         tickets: parseInt(form['event-tickets'].value),
         participants: []
       };
-      events.push(newEvent);
-      saveEvents();
+      saveEvent(newEvent);
       form.reset();
-      renderEvents();
     };
 
-    renderEvents();
+    fetchEvents();
+  </script>
+
+  <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBUfRi-Y8t3G_jtj-G4i8IPD2Imwsovquk",
+    authDomain: "ticketmaster-eb5b8.firebaseapp.com",
+    projectId: "ticketmaster-eb5b8",
+    storageBucket: "ticketmaster-eb5b8.firebasestorage.app",
+    messagingSenderId: "158973544951",
+    appId: "1:158973544951:web:4088e065dafc2c69d1c6f2"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
   </script>
 </body>
 </html>
