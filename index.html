@@ -16,20 +16,7 @@
     </header>
 
     <main>
-        <section id="auth-section" class="auth-section">
-            <h2>Login to Rock!</h2>
-            <form id="authForm" class="auth-form">
-                <input type="email" id="authEmail" placeholder="E-Mail" required>
-                <input type="password" id="authPassword" placeholder="Passwort" required>
-                <div class="auth-buttons">
-                    <button type="submit" id="signInButton" class="btn primary-btn">Anmelden</button>
-                    <button type="button" id="authSignUpButton" class="btn secondary-btn">Registrieren</button>
-                </div>
-            </form>
-            <p id="authStatusMessage" class="status-message"></p>
-        </section>
-
-        <section id="main-content" class="main-content hidden">
+        <section id="main-content" class="main-content">
             <button id="addEventBtn" class="btn primary-btn add-btn">➕ Neues Event anlegen</button>
 
             <h2>Bevorstehende Gigs</h2>
@@ -83,16 +70,7 @@
         </div>
     </div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-    </script>
+    <script type="module" src="firebase.js"></script>
     <script type="module" src="main.js"></script>
 </body>
 </html>

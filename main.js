@@ -1,39 +1,16 @@
 // main.js
 
-// Firebase Module Imports
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+// Importiere die exportierten Firebase-Instanzen aus firebase.js
+import { db, auth } from './firebase.js';
 
-// --- 1. Firebase Konfiguration & Initialisierung ---
-// Stelle sicher, dass dieses Objekt deine tatsächlichen Firebase-Projektkonfigurationen enthält!
-const firebaseConfig = {
-  apiKey: "AIzaSyBUfRi-Y8t3G_jtj-G4i8IPD2Imwsovquk",
-  authDomain: "ticketmaster-eb5b8.firebaseapp.com",
-  projectId: "ticketmaster-eb5b8",
-  storageBucket: "ticketmaster-eb5b8.firebasestorage.app",
-  messagingSenderId: "158973544951",
-  appId: "1:158973544951:web:4088e065dafc2c69d1c6f2"
-};
+// Importiere die benötigten Firestore-Funktionen
+import { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-
-// Globale Variablen
-let currentUserId = null;
+// Globale Variablen (Auth-Status irrelevant, aber halten wir userID für Konsistenz)
+let currentUserId = "public_user"; // Simuliere eine feste ID, da kein Login
 let currentEventId = null; // Aktuell ausgewähltes Event für Teilnehmerverwaltung
 
-// --- 2. Referenzen zu DOM-Elementen ---
-// Auth Section
-const authSection = document.getElementById('auth-section');
-const authForm = document.getElementById('authForm');
-const authEmailInput = document.getElementById('authEmail');
-const authPasswordInput = document.getElementById('authPassword');
-const signInButton = document.getElementById('signInButton');
-const signUpButton = document.getElementById('authSignUpButton');
-const authStatusMessage = document.getElementById('authStatusMessage');
-
+// --- 1. Referenzen zu DOM-Elementen ---
 // Main Content Section
 const mainContent = document.getElementById('main-content');
 const addEventBtn = document.getElementById('addEventBtn');
@@ -67,74 +44,13 @@ const noParticipantsMessage = document.querySelector('.no-participants-message')
 const closeParticipantsModalButtons = participantsModal.querySelectorAll('.close-button');
 
 
-// --- 3. Firebase Authentication Logik ---
-// Listener für den Anmeldestatus
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        currentUserId = user.uid;
-        console.log("Benutzer angemeldet:", user.email, user.uid);
-        authSection.classList.add('hidden');
-        mainContent.classList.remove('hidden');
-        loadEvents(); // Events laden, sobald Benutzer angemeldet ist
-        authStatusMessage.textContent = `Willkommen, ${user.email}!`;
-        authStatusMessage.className = 'status-message success';
-    } else {
-        currentUserId = null;
-        console.log("Kein Benutzer angemeldet.");
-        authSection.classList.remove('hidden');
-        mainContent.classList.add('hidden');
-        eventsList.innerHTML = ''; // Eventliste leeren
-        authStatusMessage.textContent = "Bitte melde dich an, um fortzufahren.";
-        authStatusMessage.className = 'status-message warning';
-    }
+// --- 2. Initiales Laden der Events (Keine Auth-Prüfung mehr) ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Da es keinen Login gibt, laden wir die Events sofort
+    loadEvents();
 });
 
-// Anmelde-Formular Handler
-if (authForm) {
-    authForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = authEmailInput.value;
-        const password = authPasswordInput.value;
-
-        try {
-            await signInWithEmailAndPassword(auth, email, password);
-            // onAuthStateChanged kümmert sich um die UI-Updates
-        } catch (error) {
-            authStatusMessage.textContent = `Anmeldefehler: ${error.message}`;
-            authStatusMessage.className = 'status-message error';
-            console.error("Anmeldefehler:", error);
-        }
-    });
-}
-
-// Registrierungs-Button Handler
-if (signUpButton) {
-    signUpButton.addEventListener('click', async () => {
-        const email = authEmailInput.value;
-        const password = authPasswordInput.value;
-
-        try {
-            await createUserWithEmailAndPassword(auth, email, password);
-            // onAuthStateChanged kümmert sich um die UI-Updates
-        } catch (error) {
-            authStatusMessage.textContent = `Registrierungsfehler: ${error.message}`;
-            authStatusMessage.className = 'status-message error';
-            console.error("Registrierungsfehler:", error);
-        }
-    });
-}
-
-// Optional: Logout Button (könntest du im Header oder woanders platzieren)
-// const logoutButton = document.getElementById('logoutButton');
-// if (logoutButton) {
-//     logoutButton.addEventListener('click', async () => {
-//         await signOut(auth);
-//         authStatusMessage.textContent = "Erfolgreich abgemeldet.";
-//         authStatusMessage.className = 'status-message'; // Reset
-//     });
-// }
-
-// --- 4. Event-Verwaltung Logik ---
+// --- 3. Event-Verwaltung Logik ---
 
 // Event-Modal öffnen für neues Event
 if (addEventBtn) {
@@ -153,12 +69,6 @@ if (eventForm) {
     eventForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        if (!currentUserId) {
-            eventFormStatus.textContent = "Du musst angemeldet sein, um Events zu speichern.";
-            eventFormStatus.className = 'status-message error';
-            return;
-        }
-
         const eventName = eventNameInput.value;
         const eventLocation = eventLocationInput.value;
         const eventDate = eventDateInput.value; // Format YYYY-MM-DD
@@ -169,7 +79,7 @@ if (eventForm) {
                 name: eventName,
                 location: eventLocation,
                 date: eventDate,
-                userId: currentUserId, // Event dem aktuellen Benutzer zuordnen
+                // Kein userId mehr, da keine Authentifizierung notwendig ist
                 createdAt: new Date()
             };
 
@@ -201,8 +111,8 @@ if (eventForm) {
 if (deleteEventBtn) {
     deleteEventBtn.addEventListener('click', async () => {
         const eventId = eventIdHiddenInput.value;
-        if (!eventId || !currentUserId) {
-            eventFormStatus.textContent = "Kein Event zum Löschen ausgewählt oder nicht angemeldet.";
+        if (!eventId) {
+            eventFormStatus.textContent = "Kein Event zum Löschen ausgewählt.";
             eventFormStatus.className = 'status-message error';
             return;
         }
@@ -236,17 +146,12 @@ if (deleteEventBtn) {
 
 // Events aus Firebase laden und anzeigen
 async function loadEvents() {
-    if (!currentUserId) {
-        eventsList.innerHTML = '<p class="no-events-message">Bitte melde dich an, um deine Events zu sehen.</p>';
-        return;
-    }
-
     eventsList.innerHTML = ''; // Alte Events entfernen
     noEventsMessage.classList.add('hidden'); // Nachricht vorübergehend ausblenden
 
     try {
-        // Nur Events laden, die der aktuell angemeldeten Benutzer-ID gehören
-        const q = query(collection(db, "events"), where("userId", "==", currentUserId), orderBy("date", "asc"));
+        // Alle Events laden
+        const q = query(collection(db, "events"), orderBy("date", "asc"));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
@@ -282,9 +187,6 @@ async function loadEvents() {
                     e.stopPropagation();
                     showParticipants(event.id, event.name);
                 });
-
-                // Auch Click auf die Karte soll bearbeiten öffnen
-                // eventCard.addEventListener('click', () => editEvent(event.id)); // Alternativ: Karte zum Bearbeiten öffnen
             });
         }
     } catch (e) {
@@ -295,13 +197,11 @@ async function loadEvents() {
 
 // Event zum Bearbeiten öffnen
 async function editEvent(eventId) {
-    if (!currentUserId) return;
-
     try {
         const docRef = doc(db, "events", eventId);
         const docSnap = await getDoc(docRef);
 
-        if (docSnap.exists() && docSnap.data().userId === currentUserId) {
+        if (docSnap.exists()) {
             const event = docSnap.data();
             eventModalTitle.textContent = "Event bearbeiten";
             eventNameInput.value = event.name;
@@ -312,8 +212,8 @@ async function editEvent(eventId) {
             eventFormStatus.textContent = '';
             showModal(eventModal);
         } else {
-            console.error("Event nicht gefunden oder keine Berechtigung.");
-            eventFormStatus.textContent = "Event nicht gefunden oder keine Berechtigung zum Bearbeiten.";
+            console.error("Event nicht gefunden.");
+            eventFormStatus.textContent = "Event nicht gefunden.";
             eventFormStatus.className = 'status-message error';
         }
     } catch (e) {
@@ -323,7 +223,7 @@ async function editEvent(eventId) {
     }
 }
 
-// --- 5. Teilnehmer-Verwaltung Logik ---
+// --- 4. Teilnehmer-Verwaltung Logik ---
 
 // Participants Modal öffnen
 async function showParticipants(eventId, eventName) {
@@ -342,8 +242,8 @@ if (participantForm) {
     participantForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        if (!currentEventId || !currentUserId) {
-            participantStatus.textContent = "Kein Event ausgewählt oder nicht angemeldet.";
+        if (!currentEventId) {
+            participantStatus.textContent = "Kein Event ausgewählt.";
             participantStatus.className = 'status-message error';
             return;
         }
@@ -358,7 +258,7 @@ if (participantForm) {
                 hasTicket: hasTicket,
                 isPaid: isPaid,
                 eventId: currentEventId,
-                userId: currentUserId, // Teilnehmer dem Event und dem Benutzer zuordnen
+                // userId ist hier nicht mehr relevant, da keine Auth
                 createdAt: new Date()
             };
             await addDoc(collection(db, "participants"), participantData);
@@ -377,7 +277,7 @@ if (participantForm) {
 
 // Teilnehmer für ein Event laden und anzeigen
 async function loadParticipants(eventId) {
-    if (!eventId || !currentUserId) {
+    if (!eventId) {
         participantsList.innerHTML = '<li class="no-participants-message">Keine Teilnehmer verfügbar.</li>';
         return;
     }
@@ -386,8 +286,8 @@ async function loadParticipants(eventId) {
     noParticipantsMessage.classList.add('hidden'); // Nachricht ausblenden
 
     try {
-        // Nur Teilnehmer laden, die zum aktuellen Event und Benutzer gehören
-        const q = query(collection(db, "participants"), where("eventId", "==", eventId), where("userId", "==", currentUserId), orderBy("name", "asc"));
+        // Alle Teilnehmer laden, die zum aktuellen Event gehören
+        const q = query(collection(db, "participants"), where("eventId", "==", eventId), orderBy("name", "asc"));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
@@ -424,26 +324,26 @@ async function loadParticipants(eventId) {
             });
         }
     } catch (e) {
+        participantStatus.textContent = `Fehler beim Laden der Teilnehmer: ${e.message}`;
+        participantStatus.className = 'status-message error';
         console.error("Fehler beim Laden der Teilnehmer:", e);
-        participantsList.innerHTML = `<li class="status-message error">Fehler beim Laden der Teilnehmer: ${e.message}</li>`;
     }
 }
 
 // Teilnehmer-Feld umschalten (Ticket / Bezahlt Status)
 async function toggleParticipantField(participantId, fieldName, newValue) {
-    if (!currentUserId) return;
     try {
         const docRef = doc(db, "participants", participantId);
-        // Prüfen, ob der Teilnehmer auch wirklich dem angemeldeten Benutzer und Event gehört (Sicherheitscheck)
+        // Kein userId-Check mehr notwendig
         const docSnap = await getDoc(docRef);
-        if (docSnap.exists() && docSnap.data().userId === currentUserId && docSnap.data().eventId === currentEventId) {
+        if (docSnap.exists() && docSnap.data().eventId === currentEventId) {
             await updateDoc(docRef, { [fieldName]: newValue });
             participantStatus.textContent = `${fieldName === 'hasTicket' ? 'Ticket-Status' : 'Bezahl-Status'} aktualisiert!`;
             participantStatus.className = 'status-message success';
             await loadParticipants(currentEventId); // Liste neu laden
             await updateParticipantsSummary(currentEventId); // Zusammenfassung aktualisieren
         } else {
-            participantStatus.textContent = "Keine Berechtigung zur Aktualisierung oder Teilnehmer nicht gefunden.";
+            participantStatus.textContent = "Fehler: Teilnehmer nicht gefunden.";
             participantStatus.className = 'status-message error';
         }
     } catch (e) {
@@ -455,21 +355,20 @@ async function toggleParticipantField(participantId, fieldName, newValue) {
 
 // Teilnehmer löschen
 async function deleteParticipant(participantId) {
-    if (!currentUserId) return;
     if (!confirm("Bist du sicher, dass du diesen Teilnehmer löschen möchtest?")) return;
 
     try {
         const docRef = doc(db, "participants", participantId);
-        // Sicherheitscheck: Prüfen, ob der Teilnehmer auch wirklich dem angemeldeten Benutzer und Event gehört
+        // Kein userId-Check mehr notwendig
         const docSnap = await getDoc(docRef);
-        if (docSnap.exists() && docSnap.data().userId === currentUserId && docSnap.data().eventId === currentEventId) {
+        if (docSnap.exists() && docSnap.data().eventId === currentEventId) {
             await deleteDoc(docRef);
             participantStatus.textContent = "Teilnehmer erfolgreich gelöscht!";
             participantStatus.className = 'status-message success';
             await loadParticipants(currentEventId); // Liste neu laden
             await updateParticipantsSummary(currentEventId); // Zusammenfassung aktualisieren
         } else {
-            participantStatus.textContent = "Keine Berechtigung zum Löschen oder Teilnehmer nicht gefunden.";
+            participantStatus.textContent = "Fehler: Teilnehmer nicht gefunden.";
             participantStatus.className = 'status-message error';
         }
     } catch (e) {
@@ -485,7 +384,7 @@ async function updateParticipantsSummary(eventId) {
     if (!summarySpan) return;
 
     try {
-        const q = query(collection(db, "participants"), where("eventId", "==", eventId), where("userId", "==", currentUserId));
+        const q = query(collection(db, "participants"), where("eventId", "==", eventId));
         const querySnapshot = await getDocs(q);
 
         let totalParticipants = 0;
@@ -508,10 +407,9 @@ async function updateParticipantsSummary(eventId) {
 }
 
 
-// --- 6. Modal / Pop-up Funktionen ---
+// --- 5. Modal / Pop-up Funktionen (Unverändert) ---
 function showModal(modalElement) {
     modalElement.style.display = 'flex';
-    // Kleine Verzögerung, um CSS-Animation auszulösen
     setTimeout(() => {
         modalElement.classList.remove('hide');
         modalElement.classList.add('show');
@@ -521,14 +419,12 @@ function showModal(modalElement) {
 function hideModal(modalElement) {
     modalElement.classList.remove('show');
     modalElement.classList.add('hide');
-    // Warten, bis Animation beendet ist, bevor display:none gesetzt wird
     modalElement.addEventListener('animationend', function handler() {
         modalElement.style.display = 'none';
         modalElement.removeEventListener('animationend', handler);
     }, { once: true });
 }
 
-// Event Listener für Schließen-Buttons aller Modals
 closeEventModalButtons.forEach(button => {
     button.addEventListener('click', () => hideModal(eventModal));
 });
@@ -537,7 +433,6 @@ closeParticipantsModalButtons.forEach(button => {
     button.addEventListener('click', () => hideModal(participantsModal));
 });
 
-// Modal schließen, wenn außerhalb geklickt wird
 window.addEventListener('click', (event) => {
     if (event.target === eventModal) {
         hideModal(eventModal);
@@ -547,7 +442,7 @@ window.addEventListener('click', (event) => {
     }
 });
 
-// --- 7. Hilfsfunktionen ---
+// --- 6. Hilfsfunktionen (Unverändert) ---
 function formatDate(dateString) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('de-DE', options);

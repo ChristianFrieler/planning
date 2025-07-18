@@ -183,7 +183,7 @@ input[type="checkbox"] {
     accent-color: var(--primary-color); /* Modern way to style checkbox */
 }
 
-.auth-form {
+.auth-form { /* This rule is now unused as auth form is removed */
     max-width: 400px;
     margin: 0 auto;
     background-color: var(--dark-bg);
@@ -192,7 +192,7 @@ input[type="checkbox"] {
     box-shadow: inset 0 0 10px var(--shadow-color);
 }
 
-.auth-buttons {
+.auth-buttons { /* This rule is now unused as auth form is removed */
     display: flex;
     gap: 1rem;
     justify-content: center;
