@@ -3,68 +3,194 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Eventübersicht</title>
+  <title>🎸 Indie-Punk Event Manager</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Bebas+Neue&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>🎤 Indie-Punk Gigs</h1>
+  </header>
+
+  <main>
+    <section id="event-form-section">
+      <h2>Neues Event erstellen</h2>
+      <form id="event-form">
+        <input type="text" id="event-title" placeholder="Eventtitel" required />
+        <input type="text" id="event-location" placeholder="Ort" required />
+        <input type="date" id="event-date" required />
+        <input type="number" id="event-tickets" placeholder="Anzahl Tickets" required />
+        <button type="submit">Event hinzufügen</button>
+      </form>
+    </section>
+
+    <section id="events-container">
+      <h2>Geplante Events</h2>
+      <div id="event-list"></div>
+    </section>
+  </main>
+
+  <template id="event-template">
+    <div class="event-card">
+      <h3 class="event-title"></h3>
+      <p class="event-meta"></p>
+      <p class="event-tickets"></p>
+      <button class="toggle-participants">Teilnehmer anzeigen</button>
+
+      <div class="participants hidden">
+        <ul class="participant-list"></ul>
+        <input type="text" class="participant-name" placeholder="Neuer Teilnehmer" />
+        <button class="add-participant">Hinzufügen</button>
+      </div>
+    </div>
+  </template>
+
+  <footer>
+    <p>🎸 Powered by DIY Spirit • Indie Vibes only</p>
+  </footer>
+
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
-      background: #f4f4f4;
+      margin: 0;
+      background: url('https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2?auto=format&fit=crop&w=1280&q=80') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Special Elite', monospace;
+      color: #fff;
+      backdrop-filter: blur(4px);
     }
+
     header {
-      background: #4c6ef5;
-      color: white;
-      padding: 1rem;
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 2rem;
       text-align: center;
+      font-family: 'Bebas Neue', cursive;
+      font-size: 2.5rem;
+      letter-spacing: 2px;
     }
-    .container {
+
+    main {
       padding: 1rem;
       max-width: 800px;
       margin: auto;
     }
-    .event {
-      background: white;
-      border-radius: 8px;
+
+    section {
+      margin-bottom: 2rem;
+      background-color: rgba(0, 0, 0, 0.7);
       padding: 1rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
     }
-    .event h2 {
-      margin-top: 0;
-    }
-    .tickets {
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-      color: #555;
-    }
-    .button {
-      background: #4c6ef5;
-      color: white;
-      padding: 0.5rem 1rem;
+
+    input, button {
+      width: 100%;
+      margin: 0.5rem 0;
+      padding: 0.75rem;
       border: none;
-      border-radius: 6px;
+      border-radius: 5px;
+      font-family: 'Special Elite', monospace;
+    }
+
+    input {
+      background-color: #222;
+      color: #fff;
+    }
+
+    button {
+      background-color: #e91e63;
+      color: white;
       cursor: pointer;
-      margin-top: 0.5rem;
+      font-weight: bold;
+    }
+
+    .event-card {
+      border-left: 5px solid #e91e63;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+    }
+
+    .participants {
+      margin-top: 1rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.9rem;
+      background-color: rgba(0, 0, 0, 0.6);
     }
   </style>
-</head>
-<body>
-  <header>
-    <h1>🎟️ Meine Events</h1>
-  </header>
-  <div class="container">
-    <div class="event">
-      <h2>Sommerfest Köln</h2>
-      <p>📅 12. August 2025<br>📍 Stadtpark Köln</p>
-      <div class="tickets">Tickets: 3 von 5 vergeben</div>
-      <button class="button">Teilnehmer anzeigen</button>
-    </div>
 
-    <div class="event">
-      <h2>Teamausflug Münster</h2>
-      <p>📅 22. September 2025<br>📍 Aasee</p>
-      <div class="tickets">Tickets: 8 von 10 vergeben</div>
-      <button class="button">Teilnehmer anzeigen</button>
-    </div>
-  </div>
+  <script>
+    const form = document.getElementById('event-form');
+    const eventList = document.getElementById('event-list');
+    const template = document.getElementById('event-template');
+
+    let events = JSON.parse(localStorage.getItem('events')) || [];
+
+    const saveEvents = () => localStorage.setItem('events', JSON.stringify(events));
+
+    const renderEvents = () => {
+      eventList.innerHTML = '';
+      events.forEach((event, index) => {
+        const clone = template.content.cloneNode(true);
+        clone.querySelector('.event-title').textContent = event.title;
+        clone.querySelector('.event-meta').textContent = `${event.date} @ ${event.location}`;
+        clone.querySelector('.event-tickets').textContent = `${event.participants.length} von ${event.tickets} Tickets vergeben`;
+
+        const participantsEl = clone.querySelector('.participants');
+        const toggleBtn = clone.querySelector('.toggle-participants');
+        const listEl = clone.querySelector('.participant-list');
+        const inputEl = clone.querySelector('.participant-name');
+        const addBtn = clone.querySelector('.add-participant');
+
+        toggleBtn.onclick = () => participantsEl.classList.toggle('hidden');
+
+        const renderParticipants = () => {
+          listEl.innerHTML = '';
+          event.participants.forEach(name => {
+            const li = document.createElement('li');
+            li.textContent = name;
+            listEl.appendChild(li);
+          });
+        }
+
+        addBtn.onclick = () => {
+          const name = inputEl.value.trim();
+          if (!name || event.participants.length >= event.tickets) return;
+          event.participants.push(name);
+          inputEl.value = '';
+          saveEvents();
+          renderEvents();
+        }
+
+        renderParticipants();
+        eventList.appendChild(clone);
+      });
+    };
+
+    form.onsubmit = e => {
+      e.preventDefault();
+      const newEvent = {
+        title: form['event-title'].value,
+        location: form['event-location'].value,
+        date: form['event-date'].value,
+        tickets: parseInt(form['event-tickets'].value),
+        participants: []
+      };
+      events.push(newEvent);
+      saveEvents();
+      form.reset();
+      renderEvents();
+    };
+
+    renderEvents();
+  </script>
 </body>
 </html>
