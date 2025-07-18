@@ -1,0 +1,107 @@
+/* 🎸 Punk-Festival Style für die Event-App */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Special Elite', monospace;
+  background: url('https://images.unsplash.com/photo-1563901342122-b843accf1465?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+  background-size: cover;
+  color: #fff;
+  backdrop-filter: blur(3px);
+}
+
+header {
+  background-color: rgba(0, 0, 0, 0.9);
+  padding: 2rem;
+  text-align: center;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 3rem;
+  letter-spacing: 2px;
+  color: #ff0055;
+  text-shadow: 2px 2px #000;
+  border-bottom: 4px dashed #ff0055;
+}
+
+main {
+  padding: 2rem;
+  max-width: 900px;
+  margin: auto;
+  background-color: rgba(0, 0, 0, 0.75);
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
+}
+
+h2 {
+  font-family: 'Bebas Neue', cursive;
+  color: #00e0ff;
+  text-shadow: 1px 1px #000;
+}
+
+input, button {
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 5px;
+  font-family: 'Special Elite', monospace;
+  font-size: 1rem;
+}
+
+input {
+  background-color: #111;
+  color: #fff;
+  border: 1px solid #333;
+}
+
+button {
+  background-color: #ff0055;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: #ff3366;
+}
+
+.event-card {
+  border-left: 6px solid #00e0ff;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  box-shadow: 0 0 8px rgba(0, 224, 255, 0.2);
+}
+
+.participants {
+  margin-top: 1rem;
+}
+
+.hidden {
+  display: none;
+}
+
+footer {
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.9rem;
+  background-color: rgba(0, 0, 0, 0.85);
+  border-top: 3px dotted #00e0ff;
+  color: #aaa;
+  font-family: 'Special Elite', monospace;
+}
+
+ul.participant-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem 0;
+}
+
+ul.participant-list li {
+  padding: 0.3rem 0;
+  border-bottom: 1px dashed #666;
+}
+
+#event-form-section, #events-container {
+  margin-bottom: 3rem;
+}
