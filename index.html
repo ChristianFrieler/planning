@@ -1,58 +1,28 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🎸 Indie-Punk Event Manager</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meine Firebase App</title>
 </head>
 <body>
-  <header>
-    <h1>🎤 Indie-Punk Gigs</h1>
-  </header>
+    <h1>Daten speichern in Firebase</h1>
 
-  <main>
-    <section id="event-form-section">
-      <h2>Neues Event erstellen</h2>
-      <form id="event-form">
-        <input type="text" id="event-title" placeholder="Eventtitel" required />
-        <input type="text" id="event-location" placeholder="Ort" required />
-        <input type="date" id="event-date" required />
-        <input type="number" id="event-tickets" placeholder="Anzahl Tickets" required />
-        <button type="submit">Event hinzufügen</button>
-      </form>
-    </section>
+    <form id="dataForm">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
 
-    <section id="events-container">
-      <h2>Geplante Events</h2>
-      <div id="event-list"></div>
-    </section>
-  </main>
+        <label for="email">E-Mail:</label><br>
+        <input type="email" id="email" name="email" required><br><br>
 
-  <template id="event-template">
-    <div class="event-card">
-      <h3 class="event-title"></h3>
-      <p class="event-meta"></p>
-      <p class="event-tickets"></p>
-      <button class="toggle-participants">Teilnehmer anzeigen</button>
+        <label for="message">Nachricht:</label><br>
+        <textarea id="message" name="message" rows="4" cols="50"></textarea><br><br>
 
-      <div class="participants hidden">
-        <ul class="participant-list"></ul>
-        <input type="text" class="participant-name" placeholder="Neuer Teilnehmer" />
-        <button class="add-participant">Hinzufügen</button>
-      </div>
-    </div>
-  </template>
+        <button type="submit">Daten speichern</button>
+    </form>
 
-  <footer>
-    <p>🎸 Powered by DIY Spirit • Indie Vibes only</p>
-  </footer>
+    <p id="statusMessage"></p>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <!-- Deine Hauptlogik -->
-  <script src="main.js"></script>
+    <script type="module" src="main.js"></script>
 </body>
 </html>
