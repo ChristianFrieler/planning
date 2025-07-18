@@ -1,12 +1,70 @@
----
-layout: default
-title: Meine coole Seite
----
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eventübersicht</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: #f4f4f4;
+    }
+    header {
+      background: #4c6ef5;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    .container {
+      padding: 1rem;
+      max-width: 800px;
+      margin: auto;
+    }
+    .event {
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .event h2 {
+      margin-top: 0;
+    }
+    .tickets {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .button {
+      background: #4c6ef5;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎟️ Meine Events</h1>
+  </header>
+  <div class="container">
+    <div class="event">
+      <h2>Sommerfest Köln</h2>
+      <p>📅 12. August 2025<br>📍 Stadtpark Köln</p>
+      <div class="tickets">Tickets: 3 von 5 vergeben</div>
+      <button class="button">Teilnehmer anzeigen</button>
+    </div>
 
-<h1>Willkommen!</h1>
-<p>Dies ist meine eigene Startseite ohne das große Cayman-Banner.</p>
-<ul>
-  <li>Punkt 1</li>
-  <li>Punkt 2</li>
-  <li>Punkt 3</li>
-</ul>
+    <div class="event">
+      <h2>Teamausflug Münster</h2>
+      <p>📅 22. September 2025<br>📍 Aasee</p>
+      <div class="tickets">Tickets: 8 von 10 vergeben</div>
+      <button class="button">Teilnehmer anzeigen</button>
+    </div>
+  </div>
+</body>
+</html>
