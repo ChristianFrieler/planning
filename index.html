@@ -3,26 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meine Firebase App</title>
+    <title>Rockt die Events! Dein Konzert-Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Daten speichern in Firebase</h1>
+    <header>
+        <div class="header-content">
+            <h1>🎸 Rockt die Events! 🤘</h1>
+            <p>Dein ultimativer Konzert- und Event-Manager</p>
+        </div>
+    </header>
 
-    <form id="dataForm">
-        <label for="name">Name:</label><br>
-        <input type="text" id="name" name="name" required><br><br>
+    <main>
+        <section id="auth-section" class="auth-section">
+            <h2>Login to Rock!</h2>
+            <form id="authForm" class="auth-form">
+                <input type="email" id="authEmail" placeholder="E-Mail" required>
+                <input type="password" id="authPassword" placeholder="Passwort" required>
+                <div class="auth-buttons">
+                    <button type="submit" id="signInButton" class="btn primary-btn">Anmelden</button>
+                    <button type="button" id="authSignUpButton" class="btn secondary-btn">Registrieren</button>
+                </div>
+            </form>
+            <p id="authStatusMessage" class="status-message"></p>
+        </section>
 
-        <label for="email">E-Mail:</label><br>
-        <input type="email" id="email" name="email" required><br><br>
+        <section id="main-content" class="main-content hidden">
+            <button id="addEventBtn" class="btn primary-btn add-btn">➕ Neues Event anlegen</button>
 
-        <label for="message">Nachricht:</label><br>
-        <textarea id="message" name="message" rows="4" cols="50"></textarea><br><br>
+            <h2>Bevorstehende Gigs</h2>
+            <div id="eventsList" class="event-list">
+                <p class="no-events-message">Keine bevorstehenden Events gefunden. Lege gleich eines an!</p>
+            </div>
+        </section>
+    </main>
 
-        <button type="submit">Daten speichern</button>
-    </form>
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 id="modalTitle">Neues Event anlegen</h2>
+            <form id="eventForm">
+                <label for="eventName">Name der Veranstaltung:</label>
+                <input type="text" id="eventName" required>
 
-    <p id="statusMessage"></p>
+                <label for="eventLocation">Location:</label>
+                <input type="text" id="eventLocation" required>
 
+                <label for="eventDate">Datum:</label>
+                <input type="date" id="eventDate" required>
+
+                <input type="hidden" id="eventId"> <button type="submit" class="btn primary-btn">Event speichern</button>
+                <button type="button" id="deleteEventBtn" class="btn danger-btn hidden">Event löschen</button>
+            </form>
+            <p id="eventFormStatus" class="status-message"></p>
+        </div>
+    </div>
+
+    <div id="participantsModal" class="modal">
+        <div class="modal-content large-modal">
+            <span class="close-button">&times;</span>
+            <h2 id="participantsModalTitle">Teilnehmer für: <span id="currentEventName"></span></h2>
+            <p>Event ID: <span id="currentEventId"></span></p>
+
+            <form id="participantForm" class="participant-form">
+                <input type="text" id="participantName" placeholder="Name des Teilnehmers" required>
+                <label for="hasTicket">Ticket gekauft?</label>
+                <input type="checkbox" id="hasTicket">
+                <label for="isPaid">Bezahlt?</label>
+                <input type="checkbox" id="isPaid">
+                <button type="submit" class="btn primary-btn small-btn">Teilnehmer hinzufügen</button>
+            </form>
+            <p id="participantStatus" class="status-message"></p>
+
+            <h3>Aktuelle Teilnehmer:</h3>
+            <ul id="participantsList" class="participants-list">
+                <li class="no-participants-message">Noch keine Teilnehmer für dieses Event.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+    </script>
     <script type="module" src="main.js"></script>
 </body>
 </html>
