@@ -49,23 +49,34 @@
     <p>🎸 Powered by DIY Spirit • Indie Vibes only</p>
   </footer>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBUfRi-Y8t3G_jtj-G4i8IPD2Imwsovquk",
+      authDomain: "ticketmaster-eb5b8.firebaseapp.com",
+      projectId: "ticketmaster-eb5b8",
+      storageBucket: "ticketmaster-eb5b8.firebasestorage.app",
+      messagingSenderId: "158973544951",
+      appId: "1:158973544951:web:4088e065dafc2c69d1c6f2"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
     const form = document.getElementById('event-form');
     const eventList = document.getElementById('event-list');
     const template = document.getElementById('event-template');
 
-    let db;
     let events = [];
-
-    // Diese Funktion wird von Firebase aufgerufen, nachdem es initialisiert wurde
-    window.initApp = () => {
-      db = firebase.firestore();
-      fetchEvents();
-    };
 
     const fetchEvents = async () => {
       const snapshot = await db.collection("events").get();
-      events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      events = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
       renderEvents();
     };
 
@@ -82,6 +93,8 @@
     const renderEvents = () => {
       eventList.innerHTML = '';
       events.forEach(event => {
+        // Fallback für alte Events ohne Teilnehmerfeld
+        if (!event.participants) event.participants = [];
         const clone = template.content.cloneNode(true);
         clone.querySelector('.event-title').textContent = event.title;
         clone.querySelector('.event-meta').textContent = `${event.date} @ ${event.location}`;
@@ -128,26 +141,9 @@
       saveEvent(newEvent);
       form.reset();
     };
-  </script>
 
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyBUfRi-Y8t3G_jtj-G4i8IPD2Imwsovquk",
-    authDomain: "ticketmaster-eb5b8.firebaseapp.com",
-    projectId: "ticketmaster-eb5b8",
-    storageBucket: "ticketmaster-eb5b8.firebasestorage.app",
-    messagingSenderId: "158973544951",
-    appId: "1:158973544951:web:4088e065dafc2c69d1c6f2"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
+    // On page load: load events
+    fetchEvents();
   </script>
 </body>
 </html>
